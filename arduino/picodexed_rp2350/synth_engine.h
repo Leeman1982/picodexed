@@ -16,8 +16,10 @@
 #include <mutex>
 #include "config.h"
 
-// Forward declare the Dexed class from Synth_Dexed library
-#include "synth_dexed.h"
+// Synth_Dexed FM engine
+// The install.bat script copies source files into this sketch directory.
+// The main header is dexed.h which provides the Dexed class.
+#include "dexed.h"
 
 class SynthEngine {
 public:

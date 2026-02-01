@@ -97,11 +97,15 @@
 #define VOICE_NAME_OFFSET    (VOICE_SIZE - VOICE_NAME_SIZE - 1)
 
 // ============================================================================
-// LITTLEFS VOICE STORAGE
+// VOICE STORAGE (FatFS on flash)
 // ============================================================================
-// Voice banks can be loaded from LittleFS on the onboard flash.
+// Voice banks are stored on FatFS on the onboard flash.
 // Set Flash Size to "4MB (Sketch: 1MB, FS: 3MB)" in Arduino IDE.
-// Upload .syx files to /voices/ directory using the LittleFS upload tool.
+//
+// To upload voice files:
+//   1. Upload the voice_uploader sketch (makes Pico a USB drive)
+//   2. Drag .syx files into the "voices" folder
+//   3. Upload this main sketch back
 //
 #define VOICE_STORAGE_ENABLED  1
 #define VOICE_STORAGE_PATH     "/voices"

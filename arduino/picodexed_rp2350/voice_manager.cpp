@@ -2,8 +2,11 @@
  * PicoDexed RP2350 - Arduino Port
  * Voice Manager Implementation
  *
- * Loads DX7 voice banks from LittleFS (.syx files) or falls back
+ * Loads DX7 voice banks from FatFS (.syx files) or falls back
  * to the built-in default voice.
+ *
+ * Uses FatFS (not FatFS) so it's compatible with the voice_uploader
+ * sketch which exposes the filesystem as a USB drive.
  *
  * Based on picodexed by diyelectromusic (Kevin)
  * MIT License - Copyright (c) 2025 diyelectromusic (Kevin)
@@ -13,7 +16,7 @@
 #include "oled_display.h"
 
 #if VOICE_STORAGE_ENABLED
-#include <LittleFS.h>
+#include <FatFS.h>
 #endif
 
 // ============================================================================
@@ -57,18 +60,18 @@ bool VoiceManager::begin(SynthEngine *engine, OLEDDisplay *display) {
     oled  = display;
 
 #if VOICE_STORAGE_ENABLED
-    // Mount LittleFS
-    if (!LittleFS.begin()) {
-        DEBUG_PRINTLN("LittleFS mount failed, formatting...");
-        LittleFS.format();
-        if (!LittleFS.begin()) {
-            DEBUG_PRINTLN("LittleFS format+mount failed");
+    // Mount FatFS
+    if (!FatFS.begin()) {
+        DEBUG_PRINTLN("FatFS mount failed, formatting...");
+        FatFS.format();
+        if (!FatFS.begin()) {
+            DEBUG_PRINTLN("FatFS format+mount failed");
         }
     }
     rescanBanks();
 #endif
 
-    // If no banks loaded from LittleFS, create a default bank
+    // If no banks loaded from FatFS, create a default bank
     if (numBanks == 0) {
         DEBUG_PRINTLN("No .syx files found, using default voice");
         numBanks = 1;
@@ -97,11 +100,11 @@ void VoiceManager::rescanBanks() {
     numBanks = 0;
 
     // Scan for .syx files in the voices directory
-    File dir = LittleFS.open(VOICE_STORAGE_PATH);
+    File dir = FatFS.open(VOICE_STORAGE_PATH);
     if (!dir || !dir.isDirectory()) {
-        DEBUG_PRINTLN("No /voices directory on LittleFS");
+        DEBUG_PRINTLN("No /voices directory on FatFS");
         // Try creating it for future use
-        LittleFS.mkdir(VOICE_STORAGE_PATH);
+        FatFS.mkdir(VOICE_STORAGE_PATH);
         return;
     }
 
@@ -123,13 +126,13 @@ void VoiceManager::rescanBanks() {
     }
     dir.close();
 
-    DEBUG_PRINT("Scanned LittleFS: %d banks found\n", numBanks);
+    DEBUG_PRINT("Scanned FatFS: %d banks found\n", numBanks);
 #endif
 }
 
 bool VoiceManager::loadSyxFile(const char *path, uint8_t bankIdx) {
 #if VOICE_STORAGE_ENABLED
-    File file = LittleFS.open(path, "r");
+    File file = FatFS.open(path, "r");
     if (!file) return false;
 
     size_t fileSize = file.size();

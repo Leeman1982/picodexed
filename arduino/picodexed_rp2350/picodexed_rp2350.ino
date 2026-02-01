@@ -8,17 +8,23 @@
  *   - 520KB SRAM for 24-voice polyphony and large voice bank storage
  *   - 48 kHz sample rate (vs 24 kHz on RP2040) for higher audio quality
  *   - Dual-core: Core 1 for audio, Core 0 for MIDI/UI
- *   - LittleFS on 4MB flash for storing voice banks (no SD card needed)
+ *   - FatFS on 4MB flash for storing voice banks (no SD card needed)
  *   - USB MIDI via TinyUSB + Serial MIDI (DIN-5/TRS)
  *
  * ============================================================================
- * REQUIRED LIBRARIES (install via Library Manager or GitHub):
+ * FIRST TIME SETUP:
  * ============================================================================
- *   1. Arduino Audio Tools     - https://github.com/pschatzmann/arduino-audio-tools
- *   2. Adafruit SSD1306        - Adafruit SSD1306 (Library Manager)
- *   3. Adafruit GFX Library    - Adafruit GFX Library (Library Manager)
- *   4. Adafruit TinyUSB        - Adafruit TinyUSB Library (Library Manager)
- *   5. Synth_Dexed             - See setup_synth_dexed.sh or install manually
+ *   Just double-click install.bat (Windows) or run install.sh (Mac/Linux).
+ *   It downloads everything you need automatically.
+ *
+ * ============================================================================
+ * REQUIRED LIBRARIES (installed by install.bat):
+ * ============================================================================
+ *   1. Synth_Dexed source      - Copied into sketch folder by install.bat
+ *   2. Arduino Audio Tools     - https://github.com/pschatzmann/arduino-audio-tools
+ *   3. Adafruit SSD1306        - Adafruit SSD1306 (Library Manager)
+ *   4. Adafruit GFX Library    - Adafruit GFX Library (Library Manager)
+ *   5. Adafruit TinyUSB        - Adafruit TinyUSB Library (Library Manager)
  *
  * ============================================================================
  * ARDUINO IDE SETTINGS (Tools menu):
@@ -51,21 +57,27 @@
  *     GPIO 8  -> Switch (optional)
  *
  * ============================================================================
- * VOICE BANK STORAGE (LittleFS - no SD card needed):
+ * UPLOADING VOICE BANKS (drag and drop - no SD card needed):
  * ============================================================================
- *   Voice banks are stored as .syx files on the onboard flash filesystem.
- *   The 4MB flash is split: 1MB for sketch code, 3MB for voice storage.
- *   That's room for ~750 voice banks (24,000+ voices).
+ *   Voice banks are stored on the Pico 2's onboard flash (FatFS).
+ *   The 4MB flash is split: 1MB for sketch, 3MB for voices.
+ *   That's room for ~750 banks (24,000+ voices).
  *
  *   To upload voice banks:
- *     1. Install the LittleFS upload plugin for Arduino IDE
- *     2. Place .syx files in a "data/voices/" folder in your sketch directory
- *     3. Use Tools -> "Pico LittleFS Data Upload"
+ *     1. Open voice_uploader.ino and upload it to Pico 2
+ *        (set USB Stack to "Pico SDK" for that sketch!)
+ *     2. Pico 2 appears as a USB drive on your computer
+ *     3. Drag .syx files into the "voices" folder
+ *     4. Safely eject the drive
+ *     5. Upload this main sketch back (set USB Stack to "Adafruit TinyUSB")
+ *     Your voices stay on the flash between sketch uploads!
  *
  *   Supported .syx formats:
  *     - DX7 bank dump (4104 bytes: 32 voices per file)
  *     - Raw bank data (4096 bytes: 32 x 128)
  *     - Individual voice files (128+ bytes)
+ *
+ *   Without uploaded voices, a built-in default voice (Brass 1) is used.
  *
  * Based on picodexed by diyelectromusic (Kevin)
  * https://github.com/diyelectromusic/picodexed

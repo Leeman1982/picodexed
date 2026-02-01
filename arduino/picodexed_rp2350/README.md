@@ -24,10 +24,10 @@ DX7 voices are parameter sets (128 bytes each), not audio samples. All 256
 factory voices total just 32 KB. The Pico 2's 4 MB onboard flash is split:
 
 - **1 MB** for sketch code
-- **3 MB** for LittleFS filesystem (voice bank storage)
+- **3 MB** for FatFS filesystem (voice bank storage)
 
 That's room for **~750 voice banks** (24,000+ individual voices) with no
-external storage hardware. Just upload `.syx` files to the flash filesystem.
+external storage hardware.
 
 ## Hardware Connections
 
@@ -59,23 +59,19 @@ https://github.com/earlephilhower/arduino-pico/releases/download/global/package_
 Then go to **Tools -> Board -> Boards Manager**, search for "pico", and install
 **Raspberry Pi RP2040/RP2350 Boards**.
 
-### 2. Install Libraries
+### 2. Install Libraries (One-Click)
 
-Run the setup script:
-```bash
-chmod +x setup_synth_dexed.sh
-./setup_synth_dexed.sh
-```
+**Windows:** Double-click **`install.bat`** in the sketch folder.
 
-Or install manually:
+**Mac/Linux:** Run `./install.sh` in a terminal.
 
-| Library | Source |
-|---|---|
-| Synth_Dexed | `git clone https://github.com/diyelectromusic/Synth_Dexed.git ~/Arduino/libraries/Synth_Dexed` |
-| Arduino Audio Tools | `git clone https://github.com/pschatzmann/arduino-audio-tools.git ~/Arduino/libraries/arduino-audio-tools` |
-| Adafruit SSD1306 | Arduino Library Manager |
-| Adafruit GFX | Arduino Library Manager |
-| Adafruit TinyUSB | Arduino Library Manager |
+This downloads Synth_Dexed source files and Arduino Audio Tools automatically.
+
+You still need to install these from **Sketch -> Include Library -> Manage Libraries**:
+- Adafruit SSD1306 (click "Install All" when asked about dependencies)
+- Adafruit GFX Library
+- Adafruit BusIO
+- Adafruit TinyUSB Library
 
 ### 3. Configure Arduino IDE
 
@@ -88,19 +84,34 @@ In the **Tools** menu, select:
 | Flash Size | 4MB (Sketch: 1MB, FS: 3MB) |
 | USB Stack | Adafruit TinyUSB |
 
-### 4. Upload Voice Banks (Optional)
-
-1. Download DX7 `.syx` voice bank files
-2. Place them in a `data/voices/` folder inside the sketch directory
-3. Use **Tools -> Pico LittleFS Data Upload** to flash them
-
-Without voice banks, the synth loads a built-in default voice (Brass 1).
-
-### 5. Compile and Upload
+### 4. Compile and Upload
 
 1. Connect Pico 2 via USB (hold BOOTSEL for first upload)
 2. Click **Upload** in Arduino IDE
 3. After first upload, subsequent uploads work without BOOTSEL
+
+It works immediately with a built-in default voice (Brass 1).
+
+### 5. Upload Voice Banks (Optional - Drag and Drop!)
+
+To add more voices, use the **Voice Uploader** sketch:
+
+1. Open **`voice_uploader/voice_uploader.ino`**
+2. Change **USB Stack** to **"Pico SDK"** (NOT TinyUSB!)
+3. Upload it to the Pico 2
+4. The Pico 2 appears as a **USB drive** on your computer
+5. Create a **`voices`** folder on the drive (if not already there)
+6. **Drag and drop** your `.syx` files into the `voices` folder
+7. **Safely eject** the drive
+8. Open the **main sketch** (`picodexed_rp2350.ino`) again
+9. Change **USB Stack** back to **"Adafruit TinyUSB"**
+10. Upload the main sketch
+
+Your voices stay on the flash between sketch uploads!
+
+**Where to get .syx voice files:**
+- https://yamahablackboxes.com/collection/yamaha-dx7-synthesizer/patches/
+- Search Google for "DX7 SysEx patches" - thousands of free .syx files exist
 
 ## Architecture
 
@@ -117,12 +128,6 @@ Core 0:                          Core 1:
 Both cores share the Dexed synth engine, protected by a mutex. Core 0 sends
 note events and controller changes; Core 1 continuously generates audio samples
 and streams them to the I2S DAC.
-
-## PSRAM Support (Optional)
-
-Boards with PSRAM (Pimoroni Pico Plus 2, Adafruit Feather RP2350, etc.) can
-hold even more voice banks in memory. Set **PSRAM Size** in the Tools menu to
-match your board. Voice banks will automatically use PSRAM when available.
 
 ## Credits
 
